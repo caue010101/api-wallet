@@ -46,6 +46,20 @@ namespace Controller.Wallets
             return Ok(wallet);
         }
 
+        [HttpPut("user/{userId}")]
+
+        public async Task<IActionResult> UpdateBalanceAsync(Guid userId, [FromBody] UpdateWalletDto dto)
+        {
+
+            var wallet = await _service.UpdateBalanceAsync(userId, dto);
+
+            if (wallet == null)
+            {
+                return NotFound(new { mensagem = "Carteira nao encontrada " });
+            }
+            return Ok(new { mensagem = "Carteira atualizada com sucesso " });
+        }
+
         [HttpPost("deposit/{userId}")]
 
         public async Task<IActionResult> DepositAsync(Guid userId, [FromBody] decimal amount)

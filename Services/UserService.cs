@@ -153,17 +153,41 @@ namespace Services.Users
 
         }
 
-        public async Task DeleteUserAsync(Guid userId)
+        public async Task<IEnumerable<ReadUserDto>> GetUsersAsync(int Page, int pageSize)
         {
+
+            using var conn = _context.CreateConnection();
+
             try
             {
-                await _userRepository.DeleteUserAsync(userId);
+                if (Page < 1)
+                {
+                    Page = 1;
+                }
 
-                _logger.LogInformation("Usuario {UserId} deletado com sucesso ", userId);
+                if (pageSize < 1)
+                {
+                    pageSize = 10;
+                }
+
+                if (pageSize > 50)
+                {
+                    pageSize = 50;
+                }
+
+                var users = await _userRepository.GetUsersAsync(Page, pageSize, conn);
+
+                return users.Select(u => new ReadUserDto
+                {
+                    UserId = u.UserId,
+                    Name = u.Name,
+                    Email = u.Email,
+                    CreatedAt = u.CreatedAt
+                });
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Erro ao deletar o usuario {UserId}", userId);
+                _logger.LogError($"Erro na busca dos usuarios {e.Message}");
                 throw;
             }
         }

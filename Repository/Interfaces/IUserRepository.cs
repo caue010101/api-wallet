@@ -8,6 +8,6 @@ namespace Repository.Interfaces.Users
         Task<User?> GetUserByIdAsync(Guid id);
         Task<User?> GetUserByEmailAsync(string email);
         Task AddUserAsync(User? user, IDbConnection conn, IDbTransaction tran);
-        Task DeleteUserAsync(Guid userId);
+        Task<IEnumerable<User>> GetUsersAsync(int Page, int pageSize, IDbConnection connection);
     }
 }

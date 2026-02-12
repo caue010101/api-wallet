@@ -63,15 +63,19 @@ namespace Controller.Users
             return CreatedAtAction("GetUserById", new { id = user.UserId }, user);
         }
 
-        [HttpDelete("{userId}")]
+        [HttpGet]
 
-        public async Task<IActionResult> DeleteUserAsync(Guid userId)
+        public async Task<IActionResult> GetUsersAsync([FromQuery] int Page, [FromQuery] int pageSize)
+
         {
+            var users = await _userService.GetUsersAsync(Page, pageSize);
 
-            await _userService.DeleteUserAsync(userId);
+            if (users == null)
+            {
+                return NotFound(new { mensagem = "Nenhum usuario encontrado " });
+            }
 
-            return Ok(new { mensagem = "Usuario deletado com sucesso " });
-
+            return Ok(users);
         }
 
     }

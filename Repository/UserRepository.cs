@@ -42,14 +42,23 @@ namespace Repository.Users
             await connection.ExecuteAsync(sql, user, tran);
         }
 
-        public async Task DeleteUserAsync(Guid userId)
+        public async Task<IEnumerable<User>> GetUsersAsync(int Page, int pageSize, IDbConnection connection)
         {
 
-            using var conn = _context.CreateConnection();
 
-            const string sql = @"DELETE FROM users WHERE id = @UserId";
+            var offset = (Page - 1) * pageSize;
 
-            await conn.ExecuteAsync(sql, new { UserId = userId });
+            const string sql = @"SELECT * FROM users
+              ORDER BY created_at
+              LIMIT @PageSize
+              OFFSET @Offset";
+
+            return await connection.QueryAsync<User>(sql, new
+            {
+                PageSize = pageSize,
+                Offset = offset
+            }
+          );
         }
     }
 }

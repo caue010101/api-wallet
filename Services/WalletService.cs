@@ -1,9 +1,9 @@
 using Services.Interfaces.Wallets;
 using Repository.Interfaces.Wallets;
 using Dtos.Wallet;
-using Model.Wallet;
 using Repository.Interfaces.Transactions;
 using Models.Transaction;
+using static Enums.Transaction.TransactionType;
 
 
 namespace Services.Wallets
@@ -160,7 +160,7 @@ namespace Services.Wallets
                     TransactionId = Guid.NewGuid(),
                     WalletId = wallet.Id,
                     Amount = amount,
-                    Type = Enums.Transaction.TransactionType.Deposit,
+                    Type = Deposit,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -235,7 +235,7 @@ namespace Services.Wallets
                     TransactionId = Guid.NewGuid(),
                     WalletId = wallet.Id,
                     Amount = amount,
-                    Type = Enums.Transaction.TransactionType.Saque,
+                    Type = Saque,
                     CreatedAt = DateTime.UtcNow
                 };
 
