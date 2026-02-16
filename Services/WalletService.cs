@@ -221,11 +221,11 @@ namespace Services.Wallets
 
 
 
-                var newBalance = wallet.Balance -= amount;
+                wallet.Balance -= amount;
 
                 await _walletRepository.UpdateBalanceAsync(
-                    wallet.UserId,
-                    wallet.Balance = newBalance,
+                    wallet.Id,
+                    wallet.Balance,
                     conn,
                     transaction
                 );
@@ -263,6 +263,90 @@ namespace Services.Wallets
                 throw;
             }
         }
-    }
 
+        public async Task<TransferResultDto> TransferAsync(TransferWalletDto dto)
+        {
+
+            using var conn = _context.CreateConnection();
+
+            conn.Open();
+
+            using var transaction = conn.BeginTransaction();
+
+            try
+            {
+                if (dto.FromUserId == dto.ToUserId)
+                {
+                    throw new InvalidOperationException("Voce nao pode transferir pra si mesmo ");
+                }
+
+                if (dto.Amount <= 0)
+                {
+
+                    throw new InvalidOperationException("O valor precisa ser maior que 0 ");
+                }
+
+                var wallet1 = await _walletRepository.GetByUserAsync(dto.FromUserId, conn, transaction);
+
+                if (wallet1?.Balance < dto.Amount)
+                {
+                    throw new ArgumentException("Saldo insuficiente ");
+                }
+                var wallet2 = await _walletRepository.GetByUserAsync(dto.ToUserId, conn, transaction);
+
+                if (wallet1 == null || wallet2 == null)
+                {
+                    throw new ArgumentException("Erro ao encontrar a wallet ");
+                }
+
+                wallet1.Balance -= dto.Amount;
+                wallet2.Balance += dto.Amount;
+
+                await _walletRepository.UpdateBalanceAsync(wallet1.Id, wallet1.Balance, conn, transaction);
+                await _walletRepository.UpdateBalanceAsync(wallet2.Id, wallet2.Balance, conn, transaction);
+
+
+                var debitTransaction = new Transaction
+                {
+                    TransactionId = Guid.NewGuid(),
+                    WalletId = wallet1.Id,
+                    Amount = dto.Amount,
+                    Type = Saque,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _transactionRepository.CreateTransactionAsync(debitTransaction, conn, transaction);
+
+                var creditTransaction = new Transaction
+                {
+                    TransactionId = Guid.NewGuid(),
+                    WalletId = wallet2.Id,
+                    Amount = dto.Amount,
+                    Type = Deposit,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _transactionRepository.CreateTransactionAsync(creditTransaction, conn, transaction);
+
+                transaction.Commit();
+
+                var result = new TransferResultDto
+                {
+                    FromUserId = wallet1.Id,
+                    ToUserId = wallet2.Id,
+                    Amount = wallet1.Balance,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Erro ao realizar a transferencia para {UserId}", dto.ToUserId);
+                transaction.Rollback();
+                throw;
+
+            }
+        }
+    }
 }

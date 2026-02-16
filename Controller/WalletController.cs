@@ -76,9 +76,9 @@ namespace Controller.Wallets
             return Ok(wallet);
         }
 
-        [HttpPost("draw")]
+        [HttpPost("draw/{userid}")]
 
-        public async Task<IActionResult> WithDrawAsync(Guid userid, decimal amount)
+        public async Task<IActionResult> WithDrawAsync(Guid userid, [FromBody] decimal amount)
         {
             var wallet = await _service.WithDrawAsync(userid, amount);
 
@@ -88,6 +88,21 @@ namespace Controller.Wallets
             }
 
             return Ok(wallet);
+        }
+
+        [HttpPost("transfer")]
+
+        public async Task<IActionResult> TransferAsync([FromBody] TransferWalletDto dto)
+        {
+
+            var transfer = await _service.TransferAsync(dto);
+
+            if (transfer == null)
+            {
+                return BadRequest(new { mensagem = "Wallet nao encontrada " });
+            }
+
+            return Ok(transfer);
         }
     }
 }

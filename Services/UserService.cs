@@ -152,44 +152,5 @@ namespace Services.Users
             }
 
         }
-
-        public async Task<IEnumerable<ReadUserDto>> GetUsersAsync(int Page, int pageSize)
-        {
-
-            using var conn = _context.CreateConnection();
-
-            try
-            {
-                if (Page < 1)
-                {
-                    Page = 1;
-                }
-
-                if (pageSize < 1)
-                {
-                    pageSize = 10;
-                }
-
-                if (pageSize > 50)
-                {
-                    pageSize = 50;
-                }
-
-                var users = await _userRepository.GetUsersAsync(Page, pageSize, conn);
-
-                return users.Select(u => new ReadUserDto
-                {
-                    UserId = u.UserId,
-                    Name = u.Name,
-                    Email = u.Email,
-                    CreatedAt = u.CreatedAt
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Erro na busca dos usuarios {e.Message}");
-                throw;
-            }
-        }
     }
 }

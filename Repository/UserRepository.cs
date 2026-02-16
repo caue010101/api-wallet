@@ -41,24 +41,5 @@ namespace Repository.Users
 
             await connection.ExecuteAsync(sql, user, tran);
         }
-
-        public async Task<IEnumerable<User>> GetUsersAsync(int Page, int pageSize, IDbConnection connection)
-        {
-
-
-            var offset = (Page - 1) * pageSize;
-
-            const string sql = @"SELECT * FROM users
-              ORDER BY created_at
-              LIMIT @PageSize
-              OFFSET @Offset";
-
-            return await connection.QueryAsync<User>(sql, new
-            {
-                PageSize = pageSize,
-                Offset = offset
-            }
-          );
-        }
     }
 }

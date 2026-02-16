@@ -62,21 +62,5 @@ namespace Controller.Users
 
             return CreatedAtAction("GetUserById", new { id = user.UserId }, user);
         }
-
-        [HttpGet]
-
-        public async Task<IActionResult> GetUsersAsync([FromQuery] int Page, [FromQuery] int pageSize)
-
-        {
-            var users = await _userService.GetUsersAsync(Page, pageSize);
-
-            if (users == null)
-            {
-                return NotFound(new { mensagem = "Nenhum usuario encontrado " });
-            }
-
-            return Ok(users);
-        }
-
     }
 }

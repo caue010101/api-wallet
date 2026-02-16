@@ -7,6 +7,5 @@ namespace Services.Interfaces.Users
         Task<ReadUserDto?> GetUserByIdAsync(Guid id);
         Task<ReadUserDto?> GetUserByEmailAsync(string email);
         Task<ReadUserDto?> AddUserAsync(CreateUserDto userDto);
-        Task<IEnumerable<ReadUserDto>> GetUsersAsync(int Page, int pageSize);
     }
 }
