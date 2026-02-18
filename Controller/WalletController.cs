@@ -7,6 +7,7 @@ namespace Controller.Wallets
 
     [ApiController]
     [Route("api/[controller]")]
+
     public class WalletController : ControllerBase
     {
         private readonly IWalletService _service;
@@ -62,10 +63,10 @@ namespace Controller.Wallets
 
         [HttpPost("deposit/{userId}")]
 
-        public async Task<IActionResult> DepositAsync(Guid userId, [FromBody] decimal amount)
+        public async Task<IActionResult> DepositAsync(Guid userId, [FromBody] DepositWalletDto dto)
         {
 
-            var wallet = await _service.DepositAsync(userId, amount);
+            var wallet = await _service.DepositAsync(userId, dto.Amount);
 
             if (wallet == null)
             {
@@ -78,9 +79,9 @@ namespace Controller.Wallets
 
         [HttpPost("draw/{userid}")]
 
-        public async Task<IActionResult> WithDrawAsync(Guid userid, [FromBody] decimal amount)
+        public async Task<IActionResult> WithDrawAsync(Guid userid, [FromBody] WithDrawWalletDto dto)
         {
-            var wallet = await _service.WithDrawAsync(userid, amount);
+            var wallet = await _service.WithDrawAsync(userid, dto.Amount);
 
             if (wallet == null)
             {
@@ -99,7 +100,7 @@ namespace Controller.Wallets
 
             if (transfer == null)
             {
-                return BadRequest(new { mensagem = "Wallet nao encontrada " });
+                return BadRequest(new { mensagem = "Usuario nao encontrado" });
             }
 
             return Ok(transfer);

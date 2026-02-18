@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces.Users;
 using Dtos.User;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Controller.Users
 
@@ -17,6 +18,7 @@ namespace Controller.Users
             this._userService = userService;
         }
 
+        [EnableRateLimiting("global")]
         [HttpGet("{id:guid}", Name = "GetUserById")]
 
         public async Task<IActionResult> GetUserByIdAsync(Guid id)
@@ -33,6 +35,7 @@ namespace Controller.Users
         }
 
 
+        [EnableRateLimiting("global")]
         [HttpGet("by-email/{email}")]
 
         public async Task<IActionResult> GetUserByEmailAsync(string email)
@@ -48,6 +51,7 @@ namespace Controller.Users
 
         }
 
+        [EnableRateLimiting("register")]
         [HttpPost]
 
         public async Task<IActionResult> AddUserAsync([FromBody] CreateUserDto userDto)

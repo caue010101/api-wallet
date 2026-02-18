@@ -35,3 +35,6 @@
 /home/nash/api-wallet/minhaApi/obj/Debug/net8.0/minhaApi.pdb
 /home/nash/api-wallet/minhaApi/obj/Debug/net8.0/minhaApi.genruntimeconfig.cache
 /home/nash/api-wallet/minhaApi/obj/Debug/net8.0/ref/minhaApi.dll
+/home/nash/api-wallet/minhaApi/bin/Debug/net8.0/FluentValidation.dll
+/home/nash/api-wallet/minhaApi/bin/Debug/net8.0/FluentValidation.AspNetCore.dll
+/home/nash/api-wallet/minhaApi/bin/Debug/net8.0/FluentValidation.DependencyInjectionExtensions.dll

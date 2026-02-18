@@ -219,11 +219,10 @@ namespace Services.Wallets
                     throw new ArgumentException("Saldo insuficiente ");
                 }
 
-
-
                 wallet.Balance -= amount;
 
                 await _walletRepository.UpdateBalanceAsync(
+
                     wallet.Id,
                     wallet.Balance,
                     conn,
@@ -334,7 +333,7 @@ namespace Services.Wallets
                 {
                     FromUserId = wallet1.Id,
                     ToUserId = wallet2.Id,
-                    Amount = wallet1.Balance,
+                    Amount = dto.Amount,
                     CreatedAt = DateTime.UtcNow
                 };
 
