@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces.Users;
 using Dtos.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace Controller.Users
 
 {
+
     [ApiController]
     [Route("api/[controller]")]
 
@@ -18,6 +20,7 @@ namespace Controller.Users
             this._userService = userService;
         }
 
+        [Authorize]
         [EnableRateLimiting("global")]
         [HttpGet("{id:guid}", Name = "GetUserById")]
 
@@ -34,7 +37,7 @@ namespace Controller.Users
             return Ok(user);
         }
 
-
+        [Authorize]
         [EnableRateLimiting("global")]
         [HttpGet("by-email/{email}")]
 
@@ -51,6 +54,7 @@ namespace Controller.Users
 
         }
 
+        [Authorize]
         [EnableRateLimiting("register")]
         [HttpPost]
 

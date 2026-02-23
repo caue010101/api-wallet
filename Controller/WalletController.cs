@@ -1,6 +1,9 @@
 using Services.Interfaces.Wallets;
 using Microsoft.AspNetCore.Mvc;
 using Dtos.Wallet;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Controller.Wallets
 {
@@ -17,19 +20,20 @@ namespace Controller.Wallets
             this._service = walletService;
         }
 
-        [HttpGet("{userid}")]
+        [EnableRateLimiting("global")]
+        [Authorize]
+        [HttpGet("me")]
 
-        public async Task<IActionResult> GetByUserAsync(Guid userId)
+        public async Task<IActionResult> GetByUserAsync()
         {
 
-            var wallet = await _service.GetByUserAsync(userId);
+            var userid = Guid.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+            );
 
-            if (wallet == null)
-            {
-                return NotFound(new { mensagem = "Wallet nao encontrada " });
-            }
+            var user = await _service.GetByUserAsync(userid);
 
-            return Ok(wallet);
+            return Ok(user);
         }
 
         [HttpGet("wallet/{walletId}")]
@@ -47,20 +51,8 @@ namespace Controller.Wallets
             return Ok(wallet);
         }
 
-        [HttpPut("user/{userId}")]
-
-        public async Task<IActionResult> UpdateBalanceAsync(Guid userId, [FromBody] UpdateWalletDto dto)
-        {
-
-            var wallet = await _service.UpdateBalanceAsync(userId, dto);
-
-            if (wallet == null)
-            {
-                return NotFound(new { mensagem = "Carteira nao encontrada " });
-            }
-            return Ok(new { mensagem = "Carteira atualizada com sucesso " });
-        }
-
+        [EnableRateLimiting("register")]
+        [Authorize]
         [HttpPost("deposit/{userId}")]
 
         public async Task<IActionResult> DepositAsync(Guid userId, [FromBody] DepositWalletDto dto)
@@ -77,6 +69,8 @@ namespace Controller.Wallets
             return Ok(wallet);
         }
 
+        [EnableRateLimiting("register")]
+        [Authorize]
         [HttpPost("draw/{userid}")]
 
         public async Task<IActionResult> WithDrawAsync(Guid userid, [FromBody] WithDrawWalletDto dto)
@@ -91,6 +85,8 @@ namespace Controller.Wallets
             return Ok(wallet);
         }
 
+        [EnableRateLimiting("register")]
+        [Authorize]
         [HttpPost("transfer")]
 
         public async Task<IActionResult> TransferAsync([FromBody] TransferWalletDto dto)

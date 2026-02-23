@@ -344,7 +344,6 @@ namespace Services.Wallets
                 _logger.LogError(e, "Erro ao realizar a transferencia para {UserId}", dto.ToUserId);
                 transaction.Rollback();
                 throw;
-
             }
         }
     }

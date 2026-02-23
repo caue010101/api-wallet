@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces.Transactions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Controller.Transactions
 {
@@ -17,6 +18,7 @@ namespace Controller.Transactions
             this._transactionService = transaction;
         }
 
+        [Authorize]
         [HttpGet("user/{userId}")]
 
         public async Task<IActionResult> GetTransactionByWalletAsync(Guid userId)

@@ -28,9 +28,13 @@ namespace Repository.Users
 
             using var conn = _context.CreateConnection();
 
-            const string sql = @"SELECT * FROM users WHERE email = @Email";
+            const string sql = @"SELECT id AS UserId,
+                                  email,
+                                  password_hash AS PasswordHash,
+                                  created_at AS CreatedAt 
+                                  FROM users WHERE email = @Email";
 
-            return await conn.QueryFirstOrDefaultAsync<User?>(sql, email);
+            return await conn.QueryFirstOrDefaultAsync<User?>(sql, new { Email = email });
         }
 
         public async Task AddUserAsync(User? user, IDbConnection connection, IDbTransaction tran)

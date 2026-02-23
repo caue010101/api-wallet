@@ -1,9 +1,11 @@
 using Services.Interfaces.Users;
 using Repository.Interfaces.Users;
 using Dtos.User;
+using minhaApi.Dtos.Auth;
 using Repository.Interfaces.Wallets;
 using Model.Wallet;
 using Npgsql;
+using minhaApi.Utils.Interface;
 using Model.Users;
 
 namespace Services.Users
@@ -14,14 +16,16 @@ namespace Services.Users
         private readonly ILogger<UserService> _logger;
         private readonly IWalletRepository _walletRepository;
         private readonly DapperContext _context;
+        private readonly IJwtService _jwtService;
 
         public UserService(IUserRepository userRepository, ILogger<UserService> logger, IWalletRepository walletRepository,
-            DapperContext context)
+            DapperContext context, IJwtService jwtService)
         {
             this._userRepository = userRepository;
             this._walletRepository = walletRepository;
             this._logger = logger;
             this._context = context;
+            this._jwtService = jwtService;
         }
 
         public async Task<ReadUserDto?> GetUserByIdAsync(Guid id)
@@ -151,6 +155,36 @@ namespace Services.Users
                 return null;
             }
 
+        }
+
+        public async Task<LoginResponseDto?> ValidateUserAsync(LoginRequestDto dto)
+        {
+
+            var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+
+            if (user == null)
+            {
+                _logger.LogInformation("Email incorreto: {Email}", dto.Email);
+                return null;
+            }
+
+            bool isValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
+
+            if (!isValid)
+            {
+                _logger.LogInformation("Senha invalida para o usuario {Email}", dto.Email);
+                return null;
+            }
+
+            var token = _jwtService.GenerateToken(user);
+
+            var response = new LoginResponseDto
+            {
+                AcessToken = token.ToString(),
+                ExpireToken = DateTime.UtcNow.AddHours(2)
+            };
+
+            return response;
         }
     }
 }
