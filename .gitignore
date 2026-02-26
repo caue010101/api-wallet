@@ -35,6 +35,11 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+bin/
+obj/
+appsettings.Development.json
+.env
+
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -65,7 +70,6 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
-appsettings.Development.json
 
 # Tye
 .tye/
