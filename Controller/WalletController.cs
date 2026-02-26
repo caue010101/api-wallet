@@ -28,8 +28,7 @@ namespace Controller.Wallets
         {
 
             var userid = Guid.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-            );
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var user = await _service.GetByUserAsync(userid);
 
@@ -45,7 +44,7 @@ namespace Controller.Wallets
 
             if (!wallet)
             {
-                return NotFound(new { mensagem = "Wallet nao encontrada " });
+                return NotFound(new { mensagem = "Wallet not found! " });
             }
 
             return Ok(wallet);
@@ -53,17 +52,23 @@ namespace Controller.Wallets
 
         [EnableRateLimiting("register")]
         [Authorize]
-        [HttpPost("deposit/{userId}")]
+        [HttpPost("deposit")]
 
-        public async Task<IActionResult> DepositAsync(Guid userId, [FromBody] DepositWalletDto dto)
+        public async Task<IActionResult> DepositAsync([FromBody] DepositWalletDto dto)
         {
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
 
             var wallet = await _service.DepositAsync(userId, dto.Amount);
 
             if (wallet == null)
             {
-                return NotFound(new { mensagem = "Wallet nao encontrada" });
-
+                return NotFound(new { message = "Wallet not found " });
             }
 
             return Ok(wallet);
@@ -71,15 +76,23 @@ namespace Controller.Wallets
 
         [EnableRateLimiting("register")]
         [Authorize]
-        [HttpPost("draw/{userid}")]
+        [HttpPost("draw")]
 
-        public async Task<IActionResult> WithDrawAsync(Guid userid, [FromBody] WithDrawWalletDto dto)
+        public async Task<IActionResult> WithDrawAsync([FromBody] WithDrawWalletDto dto)
         {
-            var wallet = await _service.WithDrawAsync(userid, dto.Amount);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var wallet = await _service.WithDrawAsync(userId, dto.Amount);
+
 
             if (wallet == null)
             {
-                return BadRequest(new { mensagem = "valor invalido " });
+                return NotFound(new { message = "Wallet not found " });
             }
 
             return Ok(wallet);
@@ -92,12 +105,14 @@ namespace Controller.Wallets
         public async Task<IActionResult> TransferAsync([FromBody] TransferWalletDto dto)
         {
 
-            var transfer = await _service.TransferAsync(dto);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (transfer == null)
+            if (!Guid.TryParse(userIdClaim, out var fromUserId))
             {
-                return BadRequest(new { mensagem = "Usuario nao encontrado" });
+                return Unauthorized();
             }
+
+            var transfer = await _service.TransferAsync(fromUserId, dto);
 
             return Ok(transfer);
         }

@@ -66,23 +66,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwtKey!))
     };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            Console.WriteLine("AUTH HEADER: ");
-            Console.WriteLine(context.Request.Headers["Authorization"].ToString());
-            return Task.CompletedTask;
-        },
-
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine("AUTH FAILED: ");
-            Console.WriteLine(context.Exception.ToString());
-            return Task.CompletedTask;
-        }
-    };
 });
 
 builder.Services.AddAuthorization();

@@ -17,10 +17,9 @@ namespace Repository.Users
         public async Task<User?> GetUserByIdAsync(Guid id)
         {
             using var conn = _context.CreateConnection();
-            const string sql = @"SELECT * FROM users WHERE id = @Id
-              RETURNING id";
+            const string sql = @"SELECT * FROM users WHERE id = @Id";
 
-            return await conn.QueryFirstOrDefaultAsync<User?>(sql, new { id = id });
+            return await conn.QueryFirstOrDefaultAsync<User?>(sql, new { Id = id });
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)

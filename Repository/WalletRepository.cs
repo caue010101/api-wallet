@@ -17,10 +17,14 @@ namespace Repository.Wallets
         public async Task<Wallet?> GetByUserAsync(Guid userId, IDbConnection connection, IDbTransaction transaction)
         {
 
-            const string sql = @"SELECT * FROM
-              wallets
-              WHERE 
-              user_id = @UserId";
+            const string sql = @"SELECT 
+                id,
+                user_id AS UserId,
+                balance,
+                created_at AS CreatedAt
+                  FROM wallets
+                  WHERE user_id = @UserId
+                ";
 
             return connection.QueryFirstOrDefault<Wallet?>(sql, new { UserId = userId }, transaction);
         }

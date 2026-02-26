@@ -41,7 +41,7 @@ namespace Services.Transactions
 
                 if (!walletExist)
                 {
-                    _logger.LogWarning("Wallet nao encontrada ");
+                    _logger.LogWarning("Wallet not found ");
                     return Enumerable.Empty<TransactionDto>();
                 }
 
@@ -61,7 +61,7 @@ namespace Services.Transactions
             }
             catch (Exception e)
             {
-                _logger.LogError($"Erro ao obter as transaçoes da wallet {e.Message}");
+                _logger.LogError($"Error retrieving wallet transactions {e.Message}");
                 throw;
             }
         }

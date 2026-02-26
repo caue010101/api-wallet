@@ -52,7 +52,7 @@ namespace Services.Wallets
             }
             catch (Exception e)
             {
-                _logger.LogWarning($"Erro ao encontrar a wallet {e.Message}");
+                _logger.LogWarning($"Error finding wallet {e.Message}");
                 return null;
             }
         }
@@ -72,7 +72,7 @@ namespace Services.Wallets
 
                 if (!wallet)
                 {
-                    _logger.LogWarning("Wallet nao encontrada ");
+                    _logger.LogWarning("Wallet not found ");
                     return false;
                 }
 
@@ -80,7 +80,7 @@ namespace Services.Wallets
             }
             catch (Exception e)
             {
-                _logger.LogError($"Erro na busca da wallet {e.Message}");
+                _logger.LogError($"Error finding wallet {e.Message}");
                 return false;
             }
         }
@@ -99,12 +99,12 @@ namespace Services.Wallets
 
                 if (wallet == null)
                 {
-                    throw new ArgumentNullException("Wallet nao encontrada ");
+                    throw new ArgumentNullException("Wallet not found ");
                 }
 
                 if (walletDto.Balance < 0)
                 {
-                    throw new InvalidOperationException("Valor invalido ");
+                    throw new InvalidOperationException("Value invalid ");
                 }
 
                 await _walletRepository.UpdateBalanceAsync(userId, walletDto.Balance, conn, transaction);
@@ -118,7 +118,7 @@ namespace Services.Wallets
             }
             catch (Exception e)
             {
-                _logger.LogError($"Erro ao atualizar a wallet {e.Message}");
+                _logger.LogError($"Error updating wallet {e.Message}");
                 transaction.Rollback();
                 throw;
             }
@@ -128,7 +128,7 @@ namespace Services.Wallets
         {
             if (amount <= 0)
             {
-                throw new InvalidOperationException("O valor do deposito precisa ser maior que 0 ");
+                throw new InvalidOperationException("The deposit amount must be greather than zero ");
             }
 
             using var conn = _context.CreateConnection();
@@ -147,6 +147,8 @@ namespace Services.Wallets
                 }
 
                 wallet.Balance += amount;
+
+                var newValor = wallet.Balance;
 
                 await _walletRepository.UpdateBalanceAsync(
                     wallet.Id,
@@ -173,7 +175,8 @@ namespace Services.Wallets
                 {
                     Id = wallet.Id,
                     UserId = wallet.UserId,
-                    Balance = wallet.Balance,
+                    Amount = amount,
+                    Balance = newValor,
                     CreatedAt = DateTime.UtcNow
 
                 };
@@ -182,7 +185,7 @@ namespace Services.Wallets
             }
             catch (Exception e)
             {
-                _logger.LogError($"Erro ao fazer o deposito {e.Message}");
+                _logger.LogError($"Error while making a deposit  {e.Message}");
                 transaction.Rollback();
                 throw;
             }
@@ -193,7 +196,7 @@ namespace Services.Wallets
 
             if (amount <= 0)
             {
-                throw new InvalidOperationException("O saque precisa ser maior que 0 ");
+                throw new InvalidOperationException("WithDraw must be greather than zero ");
             }
 
 
@@ -216,7 +219,7 @@ namespace Services.Wallets
 
                 if (wallet.Balance < amount)
                 {
-                    throw new ArgumentException("Saldo insuficiente ");
+                    throw new ArgumentException("Balance insufficient ");
                 }
 
                 wallet.Balance -= amount;
@@ -249,6 +252,7 @@ namespace Services.Wallets
                     Id = wallet.Id,
                     UserId = wallet.UserId,
                     Balance = wallet.Balance,
+                    Amount = amount,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -257,13 +261,13 @@ namespace Services.Wallets
             }
             catch (Exception e)
             {
-                _logger.LogError($"Erro ao fazer o saque {e.Message}");
+                _logger.LogError($"Error while making a withdrawal {e.Message}");
                 transaction.Rollback();
                 throw;
             }
         }
 
-        public async Task<TransferResultDto> TransferAsync(TransferWalletDto dto)
+        public async Task<TransferResultDto> TransferAsync(Guid fromUserId, TransferWalletDto dto)
         {
 
             using var conn = _context.CreateConnection();
@@ -274,28 +278,25 @@ namespace Services.Wallets
 
             try
             {
-                if (dto.FromUserId == dto.ToUserId)
+                if (fromUserId == dto.ToUserId)
+
                 {
-                    throw new InvalidOperationException("Voce nao pode transferir pra si mesmo ");
+                    throw new InvalidOperationException("You cant transfer it to yourself ");
                 }
 
                 if (dto.Amount <= 0)
                 {
 
-                    throw new InvalidOperationException("O valor precisa ser maior que 0 ");
+                    throw new InvalidOperationException("The value must be greather than zero ");
                 }
 
-                var wallet1 = await _walletRepository.GetByUserAsync(dto.FromUserId, conn, transaction);
+                var wallet1 = await _walletRepository.GetByUserAsync(fromUserId, conn, transaction);
 
-                if (wallet1?.Balance < dto.Amount)
-                {
-                    throw new ArgumentException("Saldo insuficiente ");
-                }
                 var wallet2 = await _walletRepository.GetByUserAsync(dto.ToUserId, conn, transaction);
 
                 if (wallet1 == null || wallet2 == null)
                 {
-                    throw new ArgumentException("Erro ao encontrar a wallet ");
+                    throw new ArgumentException("Error finding wallet ");
                 }
 
                 wallet1.Balance -= dto.Amount;
@@ -341,7 +342,7 @@ namespace Services.Wallets
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Erro ao realizar a transferencia para {UserId}", dto.ToUserId);
+                _logger.LogError(e, "Error white performing the transfer to {UserId}", dto.ToUserId);
                 transaction.Rollback();
                 throw;
             }

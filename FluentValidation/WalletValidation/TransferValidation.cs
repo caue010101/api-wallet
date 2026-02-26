@@ -10,13 +10,9 @@ namespace minhaApi.Wallet.Validation
         public TransferValidation()
         {
 
-            RuleFor(x => x.FromUserId)
-              .NotEmpty();
-
             RuleFor(x => x.ToUserId)
               .NotEmpty()
-              .NotEqual(x => x.FromUserId)
-              .WithMessage("Nao é possivel transferir para si mesmo ");
+              .WithMessage("O destino da transferencia é obrigatorio ");
 
             RuleFor(x => x.Amount)
               .NotEmpty().WithMessage("O valor da transferencia é obrigatorio ")

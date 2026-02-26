@@ -28,7 +28,7 @@ namespace Controller.Transactions
 
             if (wallet == null)
             {
-                return NotFound(new { mensagem = "wallet nao encontrada " });
+                return NotFound(new { mensagem = "wallet not found " });
             }
 
             return Ok(wallet);

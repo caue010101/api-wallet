@@ -9,6 +9,6 @@ namespace Services.Interfaces.Wallets
         Task<ReadWalletDto?> DepositAsync(Guid userId, decimal amount);
         Task<ReadWalletDto?> WithDrawAsync(Guid userId, decimal amount);
         Task<ReadWalletDto?> UpdateBalanceAsync(Guid userId, UpdateWalletDto dto);
-        Task<TransferResultDto> TransferAsync(TransferWalletDto dto);
+        Task<TransferResultDto> TransferAsync(Guid fromUserId, TransferWalletDto dto);
     }
 }
