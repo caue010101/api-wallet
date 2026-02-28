@@ -14,7 +14,6 @@ Este projeto foi criado com foco em boas práticas de arquitetura, separação d
 * Dapper
 * JWT Authentication
 * User Secrets (desenvolvimento)
-* Variáveis de Ambiente (produção)
 * Swagger
 
 ---
